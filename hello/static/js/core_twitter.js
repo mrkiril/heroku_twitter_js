@@ -13,8 +13,7 @@ if (document.readyState == "complete") {
         list_event_obj.forEach(function(item, k, list_event_obj)        
         {  
             
-            var el = document.getElementById(item.id);
-            console.log("ID > ", item.id, el )
+            var el = document.getElementById(item.id);            
             if(el != null)
             {
                 el.removeEventListener(item.event, item.foo);
@@ -513,11 +512,6 @@ if (document.readyState == "complete") {
     on('click', 'button[id=confirm_twit_edit]', function(event) {
         event.preventDefault();
         event.stopPropagation();
-        console.log('upd_twit_text > ', upd_twit_text)
-        console.log('new_twit_text > ', document.getElementById( 'upd_twi_'+upd_twit_id ).value)
-        console.log('upd_twit_id > ', upd_twit_id )
-
-
         if( upd_twit_text == document.getElementById( 'upd_twi_'+upd_twit_id ).value )
         {
             twit_form_back(upd_twit_id, document.getElementById( 'twi_text_'+upd_twit_id ).innerHTML )
@@ -528,8 +522,7 @@ if (document.readyState == "complete") {
             twi_data = {
                 "upd_id": upd_twit_id,
                 "text_twit": new_twi  
-            }
-            console.log("Твит из инпута > ", new_twi)            
+            }       
             var csrftoken = getCookie('csrftoken');
             var data_str = "";
             data_str += "upd_id"+"="+upd_twit_id;
@@ -556,8 +549,7 @@ if (document.readyState == "complete") {
                 else
                 {                    
                     data = xhr.responseText;
-                    var mes_json = JSON.parse(data);                    
-                    console.log("Твит из сервера > ", mes_json);
+                    var mes_json = JSON.parse(data);
                     twit_form_back(upd_twit_id, mes_json.twit);
                 }
 
@@ -676,7 +668,7 @@ if (document.readyState == "complete") {
         label_label2.innerHTML = mes_json.password2.message
         document.querySelector("#hor_pas2_mg").appendChild(label_label2);
     }
-    
+
     function auth_form_clear()
     {
         document.querySelector("#enter_username_div").classList.remove('has-error', 'has-success', 'has-feedback')
