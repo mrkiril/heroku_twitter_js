@@ -31,32 +31,6 @@ if (document.readyState == "complete") {
                 })
             }
             
-            
-            /*
-            var el_list = document.querySelectorAll(item.id);
-            el_list.forEach(function(el, i, el_list)
-            {  
-                
-                console.log(item.id+"> IS > "+ el.length );
-                if( el.length == undefined)
-                {
-                    console.log( el );
-                    el.removeEventListener(item.event, item.foo);
-                    el.addEventListener(item.event, item.foo);
-                }
-                else
-                {
-                    Array.from(el).forEach(function(sel, j, el)
-                    {   
-                        console.log( el );
-                        sel.removeEventListener(item.event, item.foo);
-                        sel.addEventListener(item.event, item.foo);
-                    }) 
-                }
-                
-                
-            })
-            */
 
         });
     }, false);
@@ -669,7 +643,7 @@ if (document.readyState == "complete") {
 
     function edit_animate(parent_id, color)
     {
-        $(parent_id).animate(
+        document.querySelector(parent_id).animate(
         {
             backgroundColor: color
 
@@ -921,15 +895,6 @@ if (document.readyState == "complete") {
             // or any other URL that isn't scheme relative or absolute i.e relative.
             !(/^(\/\/|http:|https:).*/.test(url));
     }
-    /*
-    $.ajaxSetup({
-    beforeSend: function(xhr, settings) {
-        if (!csrfSafeMethod(settings.type) && sameOrigin(settings.url)) {
-            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        }
-    }
-    });
-    */
-
+    
 }
 }
