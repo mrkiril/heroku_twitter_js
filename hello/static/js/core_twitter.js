@@ -7,7 +7,8 @@ if (document.readyState == "complete") {
     var list_event_obj = [];
 
     
-    document.addEventListener("DOMNodeInserted", function (event) {
+    document.addEventListener("DOMNodeInserted", function (event) 
+    {
         var textNode = event.target;        
         list_event_obj.forEach(function(item, k, list_event_obj)        
         {  
@@ -35,7 +36,6 @@ if (document.readyState == "complete") {
 
         });
     }, false);
-
    
     function on(html_event, html_id, html_foo)
     {
@@ -52,11 +52,9 @@ if (document.readyState == "complete") {
         {
             el.addEventListener(html_event, html_foo);
         }
-        
     }
 
-
-    on("click", "#registration_link", function(event) {
+    on("click", "registration_link", function(event) {
         event.preventDefault();
         event.stopPropagation();
         event.stopImmediatePropagation();
@@ -84,38 +82,6 @@ if (document.readyState == "complete") {
         }
         return false;
     });
-
-    function auth_form_clear()
-    {
-        document.querySelector("#enter_username_div").classList.remove('has-error', 'has-success', 'has-feedback')
-        document.querySelector("#password_div").classList.remove('has-error', 'has-success', 'has-feedback')
-        if (document.querySelector("#glyphicon_user_remove") != null)
-        {
-            document.querySelector("#glyphicon_user_remove").remove();
-        }
-
-        if (document.querySelector("#glyphicon_pass_remove") != null)
-        {
-            document.querySelector("#glyphicon_pass_remove").remove();
-        }
-    }
-
-    function auth_form_fail()
-    {
-        document.querySelector("#enter_username_div").classList.add('has-error', 'has-feedback');
-        document.querySelector("#password_div").classList.add('has-error', 'has-feedback');
-        
-
-        var span_span2 = document.createElement('span');
-        span_span2.id = "glyphicon_user_remove"
-        span_span2.classList.add("glyphicon", "glyphicon-remove", "form-control-feedback")
-        document.querySelector("#hor_user_div").appendChild(span_span2);
-
-        var span_span2 = document.createElement('span');
-        span_span2.id = "glyphicon_pass_remove"
-        span_span2.classList.add("glyphicon", "glyphicon-remove", "form-control-feedback")
-        document.querySelector("#hor_pass_div").appendChild(span_span2);
-    }
 
     on("submit", "auth_form", function(event) 
     {
@@ -352,108 +318,7 @@ if (document.readyState == "complete") {
         xhr.send(data_str);
         return false;
     });
-
-    function reg_pass1_fail(mes_json)
-    {
-        document.querySelector("#password_div_1").classList.add('has-error', 'has-feedback');
-        var span_span = document.createElement('span');
-        span_span.id = "glyphicon_pass_1"
-        span_span.classList.add("glyphicon")
-        span_span.classList.add("glyphicon-remove")
-        span_span.classList.add("form-control-feedback")
-        document.querySelector("#hor_pass_div_1").appendChild(span_span);
-
-        
-        var label_label = document.createElement('label');
-        label_label.classList.add("help-block")
-        label_label.innerHTML = mes_json.username.message
-        document.querySelector("#hor_pas1_mg").appendChild(label_label); 
-    }
-
-    function reg_user_sucses(mes_json)
-    {
-        document.querySelector("#reg_username_div").classList.add('has-success', 'has-feedback');
-        var span_span = document.createElement('span');
-        span_span.id = "glyphicon_username"
-        span_span.classList.add("glyphicon")
-        span_span.classList.add("glyphicon-ok")
-        span_span.classList.add("form-control-feedback")
-        document.querySelector("#hor_user_div").appendChild(span_span);
-    }
-
-    function reg_user_fail(mes_json)
-    {
-        document.querySelector("#reg_username_div").classList.add('has-error', 'has-feedback');        
-        var span_span = document.createElement('span');
-        span_span.id = "glyphicon_username"
-        span_span.classList.add("glyphicon")
-        span_span.classList.add("glyphicon-remove")
-        span_span.classList.add("form-control-feedback")
-        document.querySelector("#hor_user_div").appendChild(span_span);
-
-
-        var label_label = document.createElement('label');
-        label_label.classList.add("help-block")
-        label_label.innerHTML = mes_json.username.message
-        document.querySelector("#hor_user_mg").appendChild(label_label);
-    }
-
-    function reg_pass1_sucses()
-    {
-        document.querySelector("#password_div_1").classList.add('has-success', 'has-feedback');
-        var span_span1 = document.createElement('span');
-        span_span1.id = "glyphicon_pass_1"
-        span_span1.classList.add("glyphicon")
-        span_span1.classList.add("glyphicon-ok")
-        span_span1.classList.add("form-control-feedback")
-        document.querySelector("#hor_pass_div_1").appendChild(span_span1);
-    }
-
-    function reg_pass2_sucses()
-    {
-        document.querySelector("#password_div_2").classList.add('has-success', 'has-feedback');
-        var span_span2 = document.createElement('span');
-        span_span2.id = "glyphicon_pass_2"
-        span_span2.classList.add("glyphicon")
-        span_span2.classList.add("glyphicon-ok")
-        span_span2.classList.add("form-control-feedback")
-        document.querySelector("#hor_pass_div_2").appendChild(span_span2);
-    }
-
-    function reg_pass1_fail(mes_json)
-    {
-        document.querySelector("#password_div_1").classList.add('has-error', 'has-feedback');
-        var span_span1 = document.createElement('span');
-        span_span1.id = "glyphicon_pass_1"
-        span_span1.classList.add("glyphicon")
-        span_span1.classList.add("glyphicon-remove")
-        span_span1.classList.add("form-control-feedback")
-        document.querySelector("#hor_pass_div_1").appendChild(span_span1);
-
-
-        var label_label1 = document.createElement('label');
-        label_label1.classList.add("help-block")
-        label_label1.innerHTML = mes_json.password1.message
-        document.querySelector("#hor_pas1_mg").appendChild(label_label1);
-    }
-
-    function reg_pass2_fail(mes_json)
-    {
-        document.querySelector("#password_div_2").classList.add('has-error', 'has-feedback');                    
-        var span_span2 = document.createElement('span');
-        span_span2.id = "glyphicon_pass_2"
-        span_span2.classList.add("glyphicon")
-        span_span2.classList.add("glyphicon-remove")
-        span_span2.classList.add("form-control-feedback")
-        document.querySelector("#hor_pass_div_2").appendChild(span_span2);
-        
-
-        var label_label2 = document.createElement('label');
-        label_label2.classList.add("help-block")
-        label_label2.innerHTML = mes_json.password2.message
-        document.querySelector("#hor_pas2_mg").appendChild(label_label2);
-    }
-
+    
     on("change", "password_div_2", function(event) 
     {
         event.preventDefault();
@@ -645,15 +510,6 @@ if (document.readyState == "complete") {
         return false;
     });
 
-    function edit_animate(parent_id, color)
-    {
-        document.querySelector(parent_id).animate(
-        {
-            backgroundColor: color
-
-        }, 700 );
-    }
-
     on('click', 'button[id=confirm_twit_edit]', function(event) {
         event.preventDefault();
         event.stopPropagation();
@@ -720,6 +576,138 @@ if (document.readyState == "complete") {
         return false;
     });
 
+    function reg_pass1_fail(mes_json)
+    {
+        document.querySelector("#password_div_1").classList.add('has-error', 'has-feedback');
+        var span_span = document.createElement('span');
+        span_span.id = "glyphicon_pass_1"
+        span_span.classList.add("glyphicon")
+        span_span.classList.add("glyphicon-remove")
+        span_span.classList.add("form-control-feedback")
+        document.querySelector("#hor_pass_div_1").appendChild(span_span);
+
+        
+        var label_label = document.createElement('label');
+        label_label.classList.add("help-block")
+        label_label.innerHTML = mes_json.username.message
+        document.querySelector("#hor_pas1_mg").appendChild(label_label); 
+    }
+
+    function reg_user_sucses(mes_json)
+    {
+        document.querySelector("#reg_username_div").classList.add('has-success', 'has-feedback');
+        var span_span = document.createElement('span');
+        span_span.id = "glyphicon_username"
+        span_span.classList.add("glyphicon")
+        span_span.classList.add("glyphicon-ok")
+        span_span.classList.add("form-control-feedback")
+        document.querySelector("#hor_user_div").appendChild(span_span);
+    }
+
+    function reg_user_fail(mes_json)
+    {
+        document.querySelector("#reg_username_div").classList.add('has-error', 'has-feedback');        
+        var span_span = document.createElement('span');
+        span_span.id = "glyphicon_username"
+        span_span.classList.add("glyphicon")
+        span_span.classList.add("glyphicon-remove")
+        span_span.classList.add("form-control-feedback")
+        document.querySelector("#hor_user_div").appendChild(span_span);
+
+
+        var label_label = document.createElement('label');
+        label_label.classList.add("help-block")
+        label_label.innerHTML = mes_json.username.message
+        document.querySelector("#hor_user_mg").appendChild(label_label);
+    }
+
+    function reg_pass1_sucses()
+    {
+        document.querySelector("#password_div_1").classList.add('has-success', 'has-feedback');
+        var span_span1 = document.createElement('span');
+        span_span1.id = "glyphicon_pass_1"
+        span_span1.classList.add("glyphicon")
+        span_span1.classList.add("glyphicon-ok")
+        span_span1.classList.add("form-control-feedback")
+        document.querySelector("#hor_pass_div_1").appendChild(span_span1);
+    }
+
+    function reg_pass2_sucses()
+    {
+        document.querySelector("#password_div_2").classList.add('has-success', 'has-feedback');
+        var span_span2 = document.createElement('span');
+        span_span2.id = "glyphicon_pass_2"
+        span_span2.classList.add("glyphicon")
+        span_span2.classList.add("glyphicon-ok")
+        span_span2.classList.add("form-control-feedback")
+        document.querySelector("#hor_pass_div_2").appendChild(span_span2);
+    }
+
+    function reg_pass1_fail(mes_json)
+    {
+        document.querySelector("#password_div_1").classList.add('has-error', 'has-feedback');
+        var span_span1 = document.createElement('span');
+        span_span1.id = "glyphicon_pass_1"
+        span_span1.classList.add("glyphicon")
+        span_span1.classList.add("glyphicon-remove")
+        span_span1.classList.add("form-control-feedback")
+        document.querySelector("#hor_pass_div_1").appendChild(span_span1);
+
+
+        var label_label1 = document.createElement('label');
+        label_label1.classList.add("help-block")
+        label_label1.innerHTML = mes_json.password1.message
+        document.querySelector("#hor_pas1_mg").appendChild(label_label1);
+    }
+
+    function reg_pass2_fail(mes_json)
+    {
+        document.querySelector("#password_div_2").classList.add('has-error', 'has-feedback');                    
+        var span_span2 = document.createElement('span');
+        span_span2.id = "glyphicon_pass_2"
+        span_span2.classList.add("glyphicon")
+        span_span2.classList.add("glyphicon-remove")
+        span_span2.classList.add("form-control-feedback")
+        document.querySelector("#hor_pass_div_2").appendChild(span_span2);
+        
+
+        var label_label2 = document.createElement('label');
+        label_label2.classList.add("help-block")
+        label_label2.innerHTML = mes_json.password2.message
+        document.querySelector("#hor_pas2_mg").appendChild(label_label2);
+    }
+    
+    function auth_form_clear()
+    {
+        document.querySelector("#enter_username_div").classList.remove('has-error', 'has-success', 'has-feedback')
+        document.querySelector("#password_div").classList.remove('has-error', 'has-success', 'has-feedback')
+        if (document.querySelector("#glyphicon_user_remove") != null)
+        {
+            document.querySelector("#glyphicon_user_remove").remove();
+        }
+
+        if (document.querySelector("#glyphicon_pass_remove") != null)
+        {
+            document.querySelector("#glyphicon_pass_remove").remove();
+        }
+    }
+
+    function auth_form_fail()
+    {
+        document.querySelector("#enter_username_div").classList.add('has-error', 'has-feedback');
+        document.querySelector("#password_div").classList.add('has-error', 'has-feedback');
+        
+
+        var span_span2 = document.createElement('span');
+        span_span2.id = "glyphicon_user_remove"
+        span_span2.classList.add("glyphicon", "glyphicon-remove", "form-control-feedback")
+        document.querySelector("#hor_user_div").appendChild(span_span2);
+
+        var span_span2 = document.createElement('span');
+        span_span2.id = "glyphicon_pass_remove"
+        span_span2.classList.add("glyphicon", "glyphicon-remove", "form-control-feedback")
+        document.querySelector("#hor_pass_div").appendChild(span_span2);
+    }
 
     function clearregform()
     { 
@@ -806,7 +794,6 @@ if (document.readyState == "complete") {
         document.querySelector("#list_twit").appendChild(div_div);
     }
 
-
     function upd_twitform(id, last_twit)
     {
         //var id = id_link.match( /upd_(\d+)/i )[1];
@@ -853,6 +840,15 @@ if (document.readyState == "complete") {
 
         upd_twit_id = null;
         upd_twit_text = null;
+    }
+
+    function edit_animate(parent_id, color)
+    {
+        document.querySelector(parent_id).animate(
+        {
+            backgroundColor: color
+
+        }, 700 );
     }
 
     function getCookie(name) 
