@@ -13,6 +13,7 @@ if (document.readyState == "complete") {
         {  
             
             var el = document.getElementById(item.id);
+            console.log("ID > ", item.id, el )
             if(el != null)
             {
                 el.removeEventListener(item.event, item.foo);
@@ -75,7 +76,7 @@ if (document.readyState == "complete") {
         return false;
     }); 
 
-    on("change", "#auth_form", function(event) {
+    on("change", "auth_form", function(event) {
         if (is_auth == true)
         {
             auth_form_clear()
@@ -97,7 +98,6 @@ if (document.readyState == "complete") {
         {
             document.querySelector("#glyphicon_pass_remove").remove();
         }
-                
     }
 
     function auth_form_fail()
@@ -117,8 +117,8 @@ if (document.readyState == "complete") {
         document.querySelector("#hor_pass_div").appendChild(span_span2);
     }
 
-
-    on("submit", "auth_form", function(event) {
+    on("submit", "auth_form", function(event) 
+    {
         event.preventDefault();
         event.stopPropagation();        
         var csrftoken = getCookie('csrftoken');
@@ -163,9 +163,8 @@ if (document.readyState == "complete") {
         return false;
     });
 
-
-
-    on("submit", "#reg_form", function(event) {
+    on("submit", "reg_form", function(event) 
+    {
         event.preventDefault();
         event.stopPropagation();
         clearregform()
@@ -215,7 +214,8 @@ if (document.readyState == "complete") {
         return false;
     });
 
-    on("submit", "#logout", function(event) {
+    on("submit", "logout", function(event) 
+    {
         event.preventDefault();
         event.stopPropagation();
         event.stopImmediatePropagation();
@@ -251,7 +251,8 @@ if (document.readyState == "complete") {
         return false;
     });
 
-    on("change", "#reg_username", function(event) {
+    on("change", "reg_username", function(event) 
+    {
         event.preventDefault();
         event.stopPropagation();
         clearregform_user()
@@ -301,7 +302,8 @@ if (document.readyState == "complete") {
         return false;
     });
 
-    on("change", "#password_div_1", function(event) {
+    on("change", "password_div_1", function(event) 
+    {
         event.preventDefault();
         event.stopPropagation();
         clearregform_pas1()
@@ -367,7 +369,6 @@ if (document.readyState == "complete") {
         label_label.innerHTML = mes_json.username.message
         document.querySelector("#hor_pas1_mg").appendChild(label_label); 
     }
-
 
     function reg_user_sucses(mes_json)
     {
@@ -453,7 +454,8 @@ if (document.readyState == "complete") {
         document.querySelector("#hor_pas2_mg").appendChild(label_label2);
     }
 
-    on("change", "#password_div_2", function(event) {
+    on("change", "password_div_2", function(event) 
+    {
         event.preventDefault();
         event.stopPropagation();
         clearregform_pas1()
@@ -506,7 +508,8 @@ if (document.readyState == "complete") {
         return false;
     });
 
-    on("submit", "#send_post", function(event) {
+    on("submit", "send_post", function(event) 
+    {
         event.preventDefault();
         event.stopPropagation();
         
@@ -542,7 +545,8 @@ if (document.readyState == "complete") {
         return false;
     });
 
-    on('click', 'a[href^=\\/twit\\/del]', function(event) {
+    on('click', 'a[href^=\\/twit\\/del]', function(event) 
+    {
         event.stopImmediatePropagation();
         event.preventDefault();
         event.stopPropagation();
@@ -580,7 +584,8 @@ if (document.readyState == "complete") {
         return false;
     });
 
-    on('click', 'a[href^=\\/twit\\/upd]', function(event) {
+    on('click', 'a[href^=\\/twit\\/upd]', function(event) 
+    {
         event.stopImmediatePropagation();
         event.preventDefault();
         event.stopPropagation();
@@ -639,7 +644,6 @@ if (document.readyState == "complete") {
         
         return false;
     });
-
 
     function edit_animate(parent_id, color)
     {
@@ -708,7 +712,6 @@ if (document.readyState == "complete") {
         return false;
     });
 
-
     on('click', 'button[id=cansel_twit_edit]', function(event) {
         event.preventDefault();
         event.stopPropagation();
@@ -733,7 +736,6 @@ if (document.readyState == "complete") {
             document.querySelector("#glyphicon_username").remove();
         }
         document.querySelector("#hor_user_mg").innerHTML = "";
-
     }
 
     function clearregform_pas1()
@@ -744,7 +746,6 @@ if (document.readyState == "complete") {
         {
             document.querySelector("#glyphicon_pass_1").remove();
         }
-        
     }
 
     function clearregform_pas2()
@@ -780,7 +781,6 @@ if (document.readyState == "complete") {
             reg_pass1_fail(mes_json)
             reg_pass2_fail(mes_json)            
         }
-
     }
 
     function add_twittolist(id, twit, date)
@@ -810,8 +810,6 @@ if (document.readyState == "complete") {
     function upd_twitform(id, last_twit)
     {
         //var id = id_link.match( /upd_(\d+)/i )[1];
-        
-
         var new_form = ""
         new_form += '<input type="text" id="upd_twi_'+id+'" class="form-control form_post" value="'+last_twit+'">';
         new_form += '<button type="button" id="confirm_twit_edit" class="btn btn-default btn-sm form_margin_inl">Confirm changes</button>';
