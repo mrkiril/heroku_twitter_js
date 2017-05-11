@@ -434,11 +434,13 @@ if (document.readyState == "complete") {
                 return;
             }
             else
-            {
+            {   
+                console.log( document.querySelectorAll("a[href^=\\/twit\\/del]"))
                 data = xhr.responseText
                 var twit_json = JSON.parse(data);
                 if ("del_twit" in twit_json )
-                {                    
+                {  
+                    console.log(data)                  
                     document.querySelector(twit_json.del_twit).remove()
                 }
             }
