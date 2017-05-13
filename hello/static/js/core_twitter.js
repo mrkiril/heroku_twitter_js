@@ -53,17 +53,23 @@ if (document.readyState == "complete") {
         }
     }
 
-    on("click", "registration_link", function(event) {
+    on("click", "registration_link", function(event) 
+    {
         event.preventDefault();
         event.stopPropagation();
         event.stopImmediatePropagation();
         
-        
         var xhr = new XMLHttpRequest();
         xhr.open("GET", '/reg/', true);
         xhr.onreadystatechange = function ()
-        {       
-            if(xhr.readyState == 4)
+        {   
+            if (this.readyState != 4) return;
+            if (this.status != 200) 
+            { 
+                alert( 'ERROR: ' + (this.status ? this.statusText : ' FUCK ') );
+                return;
+            }
+            else
             {
                 document.querySelector('body').innerHTML = xhr.responseText;
             }
@@ -73,7 +79,8 @@ if (document.readyState == "complete") {
         return false;
     }); 
 
-    on("change", "auth_form", function(event) {
+    on("change", "auth_form", function(event) 
+    {
         if (is_auth == true)
         {
             auth_form_clear()
@@ -109,17 +116,25 @@ if (document.readyState == "complete") {
             }
             else
             {   
-                data = xhr.responseText
-                if (data == "UNCORECT_USER")
-                { 
-                    auth_form_fail()                    
-                    is_auth = true;
+                try
+                {
+                    data = xhr.responseText
+                    if (data == "UNCORECT_USER")
+                    { 
+                        auth_form_fail()                    
+                        is_auth = true;
+                    }
+                    else
+                    {  
+                        var reg_json = JSON.parse(data);
+                        document.querySelector(reg_json.where).innerHTML = reg_json.what;
+                    }
                 }
-                else
-                {  
-                    var reg_json = JSON.parse(data);
-                    document.querySelector(reg_json.where).innerHTML = reg_json.what;
+                catch(e)
+                {
+                    alert("Something went wrong. Reload this page")
                 }
+                
             }
             
         }
@@ -153,27 +168,33 @@ if (document.readyState == "complete") {
         xhr.onreadystatechange = function()
         {
             if (this.readyState != 4) return;
-            if (this.status != 200) 
+            else if (this.status != 200) 
             { 
                 alert( 'ERROR: ' + (this.status ? this.statusText : ' FUCK ') );
                 return;
             }
             else
             {
-                data = xhr.responseText
-                //alert(data);
-                var reg_json = JSON.parse(data)
-                if ("username" in reg_json)
-                {   
-                    allmes_reg(reg_json)
+                try
+                {
+                    data = xhr.responseText
+                    var reg_json = JSON.parse(data)
+                    if ("username" in reg_json)
+                    {   
+                        allmes_reg(reg_json)
+                    }
+                    else if ("where" in reg_json && "what" in reg_json)
+                    { 
+                        document.querySelector(reg_json.where).innerHTML = reg_json.what;
+                    }
                 }
-                if ("where" in reg_json && "what" in reg_json)
-                { 
-                    document.querySelector(reg_json.where).innerHTML = reg_json.what;
+                catch(e)
+                {
+                    alert("Something went wrong. Reload this page")
                 }
                 
+                
             }
-
         }
         xhr.send(data_str);        
         return false;
@@ -206,9 +227,17 @@ if (document.readyState == "complete") {
             }
             else
             {
-                data = xhr.responseText                
-                var reg_json = JSON.parse(data)
-                document.querySelector(reg_json.where).innerHTML = reg_json.what;
+                try
+                {
+                    data = xhr.responseText                
+                    var reg_json = JSON.parse(data)
+                    document.querySelector(reg_json.where).innerHTML = reg_json.what;
+                }
+                catch(e)
+                {
+                    alert("Something went wrong. Reload this page")
+                }
+                
             }
 
         }
@@ -248,17 +277,25 @@ if (document.readyState == "complete") {
             }
             else
             {
-                data = xhr.responseText                
-                var mes_json = JSON.parse(data);
-                if(mes_json.username.status == 'ok')
+                try
                 {
-                    reg_user_sucses(mes_json)
-                }
+                    data = xhr.responseText                
+                    var mes_json = JSON.parse(data);
+                    if(mes_json.username.status == 'ok')
+                    {
+                        reg_user_sucses(mes_json)
+                    }
 
-                if(mes_json.username.status == 'false')
-                {
-                    reg_user_fail(mes_json)
+                    if(mes_json.username.status == 'false')
+                    {
+                        reg_user_fail(mes_json)
+                    }
                 }
+                catch(e)
+                {
+                    alert("Something went wrong. Reload this page")
+                }
+                
             }
 
         }
@@ -299,20 +336,25 @@ if (document.readyState == "complete") {
             }
             else
             {
-                data = xhr.responseText
-                var mes_json = JSON.parse(data);
-                if(mes_json.password1.status == 'false' && document.getElementById("password_2").value != '')
+                try
                 {
-                    reg_pass1_fail(mes_json)
+                    data = xhr.responseText
+                    var mes_json = JSON.parse(data);
+                    if(mes_json.password1.status == 'false' && document.getElementById("password_2").value != '')
+                    {
+                        reg_pass1_fail(mes_json)
+                    }
+                    else
+                    {
+                        clearregform_pas1()
+                        clearregform_pas2()
+                    }
                 }
-                else
+                catch(e)
                 {
-                    clearregform_pas1()
-                    clearregform_pas2()
+                    alert("Something went wrong. Reload this page")
                 }
-
             }
-
         }
         xhr.send(data_str);
         return false;
@@ -351,22 +393,28 @@ if (document.readyState == "complete") {
             }
             else
             {
-                data = xhr.responseText
-                var mes_json = JSON.parse(data);
-           
-                if(mes_json.password1.status == 'ok' && mes_json.password2.status == 'ok')
+                try
                 {
-                    reg_pass1_sucses()
-                    reg_pass2_sucses()
+                    data = xhr.responseText
+                    var mes_json = JSON.parse(data);
+               
+                    if(mes_json.password1.status == 'ok' && mes_json.password2.status == 'ok')
+                    {
+                        reg_pass1_sucses()
+                        reg_pass2_sucses()
+                    }
+                    
+                    else if(mes_json.password1.status == 'false')
+                    {
+                        reg_pass1_fail(mes_json)
+                        reg_pass2_fail(mes_json)
+                    }
                 }
-                
-                if(mes_json.password1.status == 'false')
+                catch(e)
                 {
-                    reg_pass1_fail(mes_json)
-                    reg_pass2_fail(mes_json)
+                    alert("Something went wrong. Reload this page")
                 }
             }
-
         }
         xhr.send(data_str);
         return false;
@@ -398,10 +446,18 @@ if (document.readyState == "complete") {
             }
             else
             {
-                data = xhr.responseText
-                var twit_json = JSON.parse(data)
-                add_twittolist(twit_json.id, twit_json.twit, twit_json.date)                
-                document.getElementById("new_twit_text").value = ""
+                try
+                {
+                    data = xhr.responseText
+                    var twit_json = JSON.parse(data)
+                    add_twittolist(twit_json.id, twit_json.twit, twit_json.date)                
+                    document.getElementById("new_twit_text").value = ""
+                }
+                catch(e)
+                {
+                    alert("Укулеле. Если вы е играли на етом инструменте вы многое потеряли. Тем не менее Something went wrong. Reload this page!")
+                }
+                
             }
 
         }
@@ -435,13 +491,21 @@ if (document.readyState == "complete") {
             }
             else
             {   
-                console.log( document.querySelectorAll("a[href^=\\/twit\\/del]"))
+                console.log(document.querySelectorAll("a[href^=\\/twit\\/del]"))
                 data = xhr.responseText
                 var twit_json = JSON.parse(data);
                 if ("del_twit" in twit_json )
                 {  
-                    console.log(data)                  
-                    document.querySelector(twit_json.del_twit).remove()
+                    try
+                    {
+                        console.log(data)
+                        document.querySelector(twit_json.del_twit).remove()
+                    }
+                    catch(e)
+                    {
+                        alert("Укулеле. Если вы е играли на етом инструменте вы многое потеряли. Тем не менее Something went wrong. Reload this page!")
+                        alert( e.name + " " + e.message );
+                    }
                 }
             }
 
@@ -486,13 +550,20 @@ if (document.readyState == "complete") {
                     last_twit = twit_json.twit
                     if(upd_twit_id == null && upd_twit_text == null)
                     {
-                        edit_dict = upd_twitform(id, last_twit);
-                        upd_twit_id = edit_dict['id'];
-                        upd_twit_text = edit_dict['edit_twit'];
+                        try
+                        {
+                            edit_dict = upd_twitform(id, last_twit);
+                            upd_twit_id = edit_dict['id'];
+                            upd_twit_text = edit_dict['edit_twit'];
 
-                        document.querySelector("#upd_"+upd_twit_id).style.display = "none"
-                        document.querySelector("#del_"+upd_twit_id).style.display = "none"
-                        document.querySelector("#twi_text_"+upd_twit_id).style.display = "none"
+                            document.querySelector("#upd_"+upd_twit_id).style.display = "none"
+                            document.querySelector("#del_"+upd_twit_id).style.display = "none"
+                            document.querySelector("#twi_text_"+upd_twit_id).style.display = "none"
+                        }
+                        catch(e)
+                        {
+                            alert("Что-то пошло не так. Перезагрузите страничку!")
+                        }
                     }
                     else
                     {          
@@ -504,10 +575,6 @@ if (document.readyState == "complete") {
 
         }
         xhr.send();
-
-
-        
-        
         return false;
     });
 
@@ -545,14 +612,29 @@ if (document.readyState == "complete") {
                 if (this.readyState != 4) return;
                 if (this.status != 200) 
                 {   
-                    alert('LALKA HUALKA ERROR')
-                    twit_form_back(upd_twit_id, new_twi)
+                    try
+                    {
+                        twit_form_back(upd_twit_id, new_twi)     
+                    }
+                    catch(e)
+                    {
+                        alert("Укулеле. Если вы е играли на етом инструменте вы многое потеряли. Тем не менее Something went wrong. Reload this page!")
+                    }
+                    
                 }
                 else
-                {                    
-                    data = xhr.responseText;
-                    var mes_json = JSON.parse(data);
-                    twit_form_back(upd_twit_id, mes_json.twit);
+                {   
+                    try
+                    {
+                        data = xhr.responseText;
+                        var mes_json = JSON.parse(data);
+                        twit_form_back(upd_twit_id, mes_json.twit);
+                    }   
+                    catch(e)
+                    {
+
+                    }              
+                    
                 }
 
             }
@@ -565,8 +647,14 @@ if (document.readyState == "complete") {
     on('click', 'button[id=cansel_twit_edit]', function(event) {
         event.preventDefault();
         event.stopPropagation();
-
-        twit_form_back(upd_twit_id, document.getElementById( 'twi_text_'+upd_twit_id ).innerHTML )
+        try
+        {
+            twit_form_back(upd_twit_id, document.getElementById( 'twi_text_'+upd_twit_id ).innerHTML )
+        }
+        catch(e)
+        {
+            alert("Something went wrong. Reload this page!")
+        }
         return false;
     });
 

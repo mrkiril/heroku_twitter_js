@@ -38,13 +38,12 @@ def get_twit(request):
     if request.user.is_authenticated():
         if request.method == "GET":
             twit_id = re.search("/twit/get/(\d+)", request.path).group(1)
-            
             twit_text = twitter_db.take_twit_by_id(twit_id).twitter_text
-            #twi = render_to_string('add_twit_template.html', context={"twit": twit_text}, request=request)
             twi_data = {"twit": twit_text}
             return return_lalka(message=json.dumps(twi_data))
 
     return authentefication(request)
+
 
 def update_twit(request):
     if request.user.is_authenticated():
@@ -53,8 +52,10 @@ def update_twit(request):
                 twi_id=str(request.POST['upd_id']),
                 new_twit=request.POST['text_twit'])
 
-            twit_text = twitter_db.take_twit_by_id(request.POST['upd_id']).twitter_text
-            twi = render_to_string('add_twit_template.html', context={"twit": twit_text}, request=request)
+            twit_text = twitter_db.take_twit_by_id(
+                request.POST['upd_id']).twitter_text
+            twi = render_to_string('add_twit_template.html', context={
+                                   "twit": twit_text}, request=request)
             twi_data = {"twit": twi}
             return return_lalka(message=json.dumps(twi_data))
 
@@ -80,8 +81,9 @@ def add_twit(request):
             this_twit = twitter_db.add_data_to_sql(
                 user=request.user,
                 twit=request.POST["new_twit_text"])
-            twi = render_to_string('add_twit_template.html', context={"twit": str(this_twit.twitter_text)}, request=request)
-            
+            twi = render_to_string('add_twit_template.html', context={
+                                   "twit": str(this_twit.twitter_text)}, request=request)
+
             twit_dict = {
                 "date": this_twit.twitter_date.strftime("%Y-%B-%d %H:%M:%S"),
                 "twit": twi,
@@ -127,8 +129,6 @@ def registration(request):
     dick = {"reg_form_link": request.path_info}
     if request.method == "POST":
         if "username" in request.POST:
-            print("REG >>> ")
-            print( request.POST )
             newuser_form = UserCreationForm(request.POST)
             if newuser_form.is_valid():
                 newuser_form.save()
@@ -161,9 +161,6 @@ def authentefication(request):
             username=username,
             password=password
         )
-
-        print("user > ", username)
-        print("pass > ", password)
         if user is not None:
             auth.login(request, user)
             request.session.set_expiry(1000)
@@ -206,7 +203,6 @@ def regformlive(request):
     mes_dick['password1'] = {"status": "ok", "message": "ok"}
     mes_dick['password2'] = {"status": "ok", "message": "ok"}
 
-    print( request.POST )
     if request.method == "POST":
         if "username" in request.POST:
             newuser_form = UserCreationForm(request.POST)
@@ -220,10 +216,9 @@ def regformlive(request):
 
 
 def regformlivemessage(dj_form, post, dick):
-    print( dick )
     user_mg = re.search(
         '<label for="id_username">Username:</label></th><td>(.*)<input id="id_username"', str(dj_form)).group(1)
-    print("USER MG >>>", user_mg.encode())
+
     if user_mg != '':
         user_mg = re.search('<li>(.*)</li>', user_mg).group(1)
         dick['username']['status'] = 'false'
