@@ -6,34 +6,77 @@ if (document.readyState == "complete") {
     var upd_twit_text = null;
     var list_event_obj = [];
 
-    
+    function ajax_get(link, params, foo)
+    {   
+        var params_str = ''
+        var params_arr = []
+        if (params != '')
+        {
+            for (var key in params) 
+            {
+              params_arr.push(key+"="+data[key]);
+            }
+            params_str = "?"+params_arr.join("&")
+        }
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = foo
+        //xhr.open("GET", '/reg/', true);        
+        xhr.open("GET", link+params_str, true);        
+        xhr.send();
+        return false;
+    }
+
+    function ajax_post(link, data, foo)
+    {
+        var csrftoken = getCookie('csrftoken');
+        var data_arr = [];
+        var data_str = '';
+        for (var key in data) 
+        {
+          data_arr.push(key+"="+data[key]);
+        }
+        if(data_arr.length > 1)
+        {
+            data_str = data_arr.join("&");
+        }
+        else
+        {
+            data_str = data_arr[0];
+        } 
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = foo;
+        xhr.open("POST", link, true);
+        xhr.setRequestHeader("X-CSRFToken", csrftoken);
+        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+        xhr.send(data_str);
+    }
+
+    function add_listener(item)
+    {
+        var elem = document.getElementById(item.id);            
+        if(elem != null)
+        {
+            elem.removeEventListener(item.event, item.foo);
+            elem.addEventListener(item.event, item.foo);
+        }
+        else
+        {
+            var el_list = document.querySelectorAll(item.id);                
+            for (var i = 0, len = el_list.length; i < len; i++)
+            {
+                el = el_list[i]
+                el.addEventListener(item.event, item.foo);
+            }
+        }
+    }
+
     document.addEventListener("DOMNodeInserted", function (event) 
     {
         var textNode = event.target;        
-        list_event_obj.forEach(function(item, k, list_event_obj)        
+        for (var j = 0, len2 = list_event_obj.length; j < len2; j++)
         {  
-            
-            var el = document.getElementById(item.id);            
-            if(el != null)
-            {
-                el.removeEventListener(item.event, item.foo);
-                el.addEventListener(item.event, item.foo);
-            }
-            else
-            {
-                var el_list = document.querySelectorAll(item.id);
-                el_list.forEach(function(el, j, el_list)
-                {  
-                    if(el != null)
-                    {
-                        el.removeEventListener(item.event, item.foo);
-                        el.addEventListener(item.event, item.foo);
-                    }
-                })
-            }
-            
-
-        });
+            add_listener(list_event_obj[j])
+        };
     }, false);
    
     function on(html_event, html_id, html_foo)
@@ -45,37 +88,41 @@ if (document.readyState == "complete") {
         }
 
         list_event_obj.push( obj );
+        add_listener( obj )
+        /*
         var el = document.getElementById(html_id);
-
         if(el != null)
         {
             el.addEventListener(html_event, html_foo);
         }
+        else
+        {
+            var el_list = document.querySelectorAll(html_id);                
+            for (var i = 0, len = el_list.length; i < len; i++)
+            {
+                el = el_list[i];
+                el.addEventListener(html_event, html_foo);
+            }
+        }
+        */
     }
 
     on("click", "registration_link", function(event) 
     {
-        event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-        
-        var xhr = new XMLHttpRequest();
-        xhr.open("GET", '/reg/', true);
-        xhr.onreadystatechange = function ()
-        {   
+        event.preventDefault();        
+        ajax_get('/reg/', '', function () {
             if (this.readyState != 4) return;
-            if (this.status != 200) 
+            else if (this.status != 200) 
             { 
                 alert( 'ERROR: ' + (this.status ? this.statusText : ' FUCK ') );
-                return;
+                location.reload()
+                
             }
             else
             {
-                document.querySelector('body').innerHTML = xhr.responseText;
+                document.querySelector('body').innerHTML = this.responseText;
             }
-            
-        }
-        xhr.send();
+        })
         return false;
     }); 
 
@@ -92,80 +139,127 @@ if (document.readyState == "complete") {
     on("submit", "auth_form", function(event) 
     {
         event.preventDefault();
-        event.stopPropagation();        
-        var csrftoken = getCookie('csrftoken');
-
-        var data_str = "";
-        data_str += "enter_username"+"="+encodeURIComponent(document.getElementById("enter_username").value);
-        data_str += "&";
-        data_str += "password"+"="+encodeURIComponent(document.getElementById("password").value);
-        var xhr = new XMLHttpRequest();
-        xhr.open( 
-            "POST", 
-            document.getElementById("auth_form").getAttribute("action"), 
-            true);
-
-        xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        xhr.onreadystatechange = function(){
+        var data = {};
+        data["enter_username"] = encodeURIComponent(document.getElementById("enter_username").value);
+        data["password"]= encodeURIComponent(document.getElementById("password").value);
+        link = document.getElementById("auth_form").getAttribute("action")
+        ajax_post(link, data, function(){
             if (this.readyState != 4) return;
-            if (this.status != 200) 
+            else if (this.status != 200) 
             { 
                 alert( 'ERROR: ' + (this.status ? this.statusText : ' FUCK ') );
-                return;
+                location.reload()
             }
             else
             {   
                 try
                 {
-                    data = xhr.responseText
+                    data = this.responseText;
+                    var reg_json = JSON.parse(data);
                     if (data == "UNCORECT_USER")
                     { 
-                        auth_form_fail()                    
+                        auth_form_fail();                    
                         is_auth = true;
                     }
                     else
                     {  
-                        var reg_json = JSON.parse(data);
                         document.querySelector(reg_json.where).innerHTML = reg_json.what;
                     }
                 }
                 catch(e)
                 {
-                    alert("Something went wrong. Reload this page")
+                    alert("Something went wrong. this page will reload")
+                    location.reload()
                 }
-                
             }
-            
-        }
-        xhr.send(data_str);
-        
+        })
         return false;
     });
 
     on("submit", "reg_form", function(event) 
     {
         event.preventDefault();
-        event.stopPropagation();
-        clearregform()
-        var csrftoken = getCookie('csrftoken');
+        //event.stopPropagation();
+        clearregform()        
+        var data = {};
+        link = document.getElementById("reg_form").getAttribute("action")
+        data["username"] = encodeURIComponent(document.getElementById("reg_username").value);
+        data["password1"] = encodeURIComponent(document.getElementById("password_1").value);
+        data["password2"] = encodeURIComponent(document.getElementById("password_2").value);
+        ajax_post(link, data, function()
+        {
+            if (this.readyState != 4) return;
+            else if (this.status != 200) 
+            { 
+                alert( 'ERROR: ' + (this.status ? this.statusText : ' FUCK ') );
+            }
+            else
+            {
+                try
+                {
+                    data = this.responseText;
+                    var reg_json = JSON.parse(data);
+                    if ("username" in reg_json)
+                    {   
+                        allmes_reg(reg_json);
+                    }
+                    else if ("where" in reg_json && "what" in reg_json)
+                    { 
+                        document.querySelector(reg_json.where).innerHTML = reg_json.what;
+                    }
+                }
+                catch(e)
+                {
+                    alert("Something went wrong. Reload this page");
+                    location.reload();
+                }
+            }
+        })
+        return false;
+    });
 
-        var data_str = "";
-        data_str += "username"+"="+encodeURIComponent(document.getElementById("reg_username").value);
-        data_str += "&";
-        data_str += "password1"+"="+encodeURIComponent(document.getElementById("password_1").value);
-        data_str += "&";
-        data_str += "password2"+"="+encodeURIComponent(document.getElementById("password_2").value);
+    on("submit", "logout", function(event) 
+    {
+        event.preventDefault();
+        link = document.getElementById("logout").getAttribute("action");
+        data = {"type_post" : encodeURIComponent(document.querySelector("#type_post").value) }
+        ajax_post(link, data, function()
+        {
+            if (this.readyState != 4) return;
+            else if (this.status != 200) 
+            { 
+                alert( 'ERROR: ' + (this.status ? this.statusText : ' FUCK ') );
+            }
+            else
+            {
+                try
+                {
+                    data = this.responseText                
+                    var reg_json = JSON.parse(data)
+                    document.querySelector(reg_json.where).innerHTML = reg_json.what;
+                }
+                catch(e)
+                {
+                    alert("Something went wrong. Reload this page")
+                    location.reload()
+                }
+            }
+        })        
+        return false;
+    });
 
-        var xhr = new XMLHttpRequest();
-        xhr.open( 
-            "POST", 
-            document.getElementById("reg_form").getAttribute("action"), 
-            true);
+    on("change", "reg_username", function(event) 
+    {
+        event.preventDefault();
+        clearregform_user()
 
-        xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        xhr.onreadystatechange = function()
+        link = "/regform/";
+        data = {}
+        data["username"] = encodeURIComponent(document.getElementById("reg_username").value);
+        data["password1"] = encodeURIComponent(document.getElementById("password_1").value);
+        data["password2"] = encodeURIComponent(document.getElementById("password_2").value);
+
+        ajax_post(link, data, function()
         {
             if (this.readyState != 4) return;
             else if (this.status != 200) 
@@ -177,116 +271,14 @@ if (document.readyState == "complete") {
             {
                 try
                 {
-                    data = xhr.responseText
-                    var reg_json = JSON.parse(data)
-                    if ("username" in reg_json)
-                    {   
-                        allmes_reg(reg_json)
-                    }
-                    else if ("where" in reg_json && "what" in reg_json)
-                    { 
-                        document.querySelector(reg_json.where).innerHTML = reg_json.what;
-                    }
-                }
-                catch(e)
-                {
-                    alert("Something went wrong. Reload this page")
-                }
-                
-                
-            }
-        }
-        xhr.send(data_str);        
-        return false;
-    });
-
-    on("submit", "logout", function(event) 
-    {
-        event.preventDefault();
-        event.stopPropagation();
-        event.stopImmediatePropagation();
-        
-        var csrftoken = getCookie('csrftoken');
-        var data_str = "";
-        data_str += "type_post"+"="+encodeURIComponent(document.querySelector("#type_post").value);
-        var xhr = new XMLHttpRequest();
-        xhr.open( 
-            "POST", 
-            document.getElementById("logout").getAttribute("action"), 
-            true);
-
-        xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        xhr.onreadystatechange = function()
-        {
-            if (this.readyState != 4) return;
-            if (this.status != 200) 
-            { 
-                alert( 'ERROR: ' + (this.status ? this.statusText : ' FUCK ') );
-                return;
-            }
-            else
-            {
-                try
-                {
-                    data = xhr.responseText                
-                    var reg_json = JSON.parse(data)
-                    document.querySelector(reg_json.where).innerHTML = reg_json.what;
-                }
-                catch(e)
-                {
-                    alert("Something went wrong. Reload this page")
-                }
-                
-            }
-
-        }
-        xhr.send(data_str);
-        return false;
-    });
-
-    on("change", "reg_username", function(event) 
-    {
-        event.preventDefault();
-        event.stopPropagation();
-        clearregform_user()
-                
-        var csrftoken = getCookie('csrftoken');
-        var data_str = "";
-        data_str += "username"+"="+encodeURIComponent(document.getElementById("reg_username").value);
-        data_str += "&";
-        data_str += "password1"+"="+encodeURIComponent(document.getElementById("password_1").value);
-        data_str += "&";
-        data_str += "password2"+"="+encodeURIComponent(document.getElementById("password_2").value);
-   
-        var xhr = new XMLHttpRequest();
-        xhr.open( 
-            "POST", 
-            "/regform/", 
-            true);
-
-        xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        xhr.onreadystatechange = function()
-        {
-            if (this.readyState != 4) return;
-            if (this.status != 200) 
-            { 
-                alert( 'ERROR: ' + (this.status ? this.statusText : ' FUCK ') );
-                return;
-            }
-            else
-            {
-                try
-                {
-                    data = xhr.responseText                
+                    data = this.responseText                
                     var mes_json = JSON.parse(data);
                     if(mes_json.username.status == 'ok')
                     {
                         reg_user_sucses(mes_json)
                     }
 
-                    if(mes_json.username.status == 'false')
+                    else if(mes_json.username.status == 'false')
                     {
                         reg_user_fail(mes_json)
                     }
@@ -294,42 +286,27 @@ if (document.readyState == "complete") {
                 catch(e)
                 {
                     alert("Something went wrong. Reload this page")
+                    location.reload()
                 }
-                
             }
-
-        }
-        xhr.send(data_str);
-        
+        })        
         return false;
     });
 
     on("change", "password_div_1", function(event) 
     {
         event.preventDefault();
-        event.stopPropagation();
         clearregform_pas1()
 
-        var csrftoken = getCookie('csrftoken');
-        var data_str = "";
-        data_str += "username"+"="+encodeURIComponent(document.getElementById("reg_username").value);
-        data_str += "&";
-        data_str += "password1"+"="+encodeURIComponent(document.getElementById("password_1").value);
-        data_str += "&";
-        data_str += "password2"+"="+encodeURIComponent(document.getElementById("password_2").value);
-   
-        var xhr = new XMLHttpRequest();
-        xhr.open( 
-            "POST", 
-            "/regform/", 
-            true);
-
-        xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        xhr.onreadystatechange = function()
+        link = "/regform/";
+        data = {}
+        data["username"] = encodeURIComponent(document.getElementById("reg_username").value);
+        data["password1"] = encodeURIComponent(document.getElementById("password_1").value);
+        data["password2"] = encodeURIComponent(document.getElementById("password_2").value);
+        ajax_post(link, data, function()
         {
             if (this.readyState != 4) return;
-            if (this.status != 200) 
+            else if (this.status != 200) 
             { 
                 alert( 'ERROR: ' + (this.status ? this.statusText : ' FUCK ') );
                 return;
@@ -338,7 +315,7 @@ if (document.readyState == "complete") {
             {
                 try
                 {
-                    data = xhr.responseText
+                    data = this.responseText
                     var mes_json = JSON.parse(data);
                     if(mes_json.password1.status == 'false' && document.getElementById("password_2").value != '')
                     {
@@ -353,40 +330,28 @@ if (document.readyState == "complete") {
                 catch(e)
                 {
                     alert("Something went wrong. Reload this page")
+                    location.reload()
                 }
             }
-        }
-        xhr.send(data_str);
+        })
         return false;
     });
     
     on("change", "password_div_2", function(event) 
     {
         event.preventDefault();
-        event.stopPropagation();
         clearregform_pas1()
         clearregform_pas2()
 
-        var csrftoken = getCookie('csrftoken');
-        var data_str = "";
-        data_str += "username"+"="+encodeURIComponent(document.getElementById("reg_username").value);
-        data_str += "&";
-        data_str += "password1"+"="+encodeURIComponent(document.getElementById("password_1").value);
-        data_str += "&";
-        data_str += "password2"+"="+encodeURIComponent(document.getElementById("password_2").value);
-   
-        var xhr = new XMLHttpRequest();
-        xhr.open( 
-            "POST", 
-            "/regform/", 
-            true);
-
-        xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        xhr.onreadystatechange = function()
+        link = "/regform/";
+        data = {}
+        data["username"] = encodeURIComponent(document.getElementById("reg_username").value);
+        data["password1"] = encodeURIComponent(document.getElementById("password_1").value);
+        data["password2"] = encodeURIComponent(document.getElementById("password_2").value);
+        ajax_post(link, data, function()
         {
             if (this.readyState != 4) return;
-            if (this.status != 200) 
+            else if (this.status != 200) 
             { 
                 alert( 'ERROR: ' + (this.status ? this.statusText : ' FUCK ') );
                 return;
@@ -395,7 +360,7 @@ if (document.readyState == "complete") {
             {
                 try
                 {
-                    data = xhr.responseText
+                    data = this.responseText
                     var mes_json = JSON.parse(data);
                
                     if(mes_json.password1.status == 'ok' && mes_json.password2.status == 'ok')
@@ -413,34 +378,23 @@ if (document.readyState == "complete") {
                 catch(e)
                 {
                     alert("Something went wrong. Reload this page")
+                    location.reload()
                 }
             }
-        }
-        xhr.send(data_str);
+        })
         return false;
     });
 
     on("submit", "send_post", function(event) 
     {
-        event.preventDefault();
-        event.stopPropagation();
-        
+        event.preventDefault();        
         var csrftoken = getCookie('csrftoken');
-        var data_str = "";
-        data_str += "new_twit_text"+"="+encodeURIComponent(document.getElementById("new_twit_text").value);
-        
-        var xhr = new XMLHttpRequest();
-        xhr.open( 
-            "POST", 
-            document.querySelector("#send_post").getAttribute("action"), 
-            true);
-
-        xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        xhr.onreadystatechange = function()
+        data = {"new_twit_text" : encodeURIComponent(document.getElementById("new_twit_text").value)}
+        link = document.querySelector("#send_post").getAttribute("action")
+        ajax_post(link, data, function()
         {
             if (this.readyState != 4) return;
-            if (this.status != 200) 
+            else if (this.status != 200) 
             { 
                 return;
             }
@@ -448,7 +402,7 @@ if (document.readyState == "complete") {
             {
                 try
                 {
-                    data = xhr.responseText
+                    data = this.responseText
                     var twit_json = JSON.parse(data)
                     add_twittolist(twit_json.id, twit_json.twit, twit_json.date)                
                     document.getElementById("new_twit_text").value = ""
@@ -456,12 +410,10 @@ if (document.readyState == "complete") {
                 catch(e)
                 {
                     alert("Укулеле. Если вы е играли на етом инструменте вы многое потеряли. Тем не менее Something went wrong. Reload this page!")
+                    location.reload()
                 }
-                
             }
-
-        }
-        xhr.send(data_str);
+        })
         return false;
     });
 
@@ -469,89 +421,64 @@ if (document.readyState == "complete") {
     {
         event.stopImmediatePropagation();
         event.preventDefault();
-        event.stopPropagation();
-        
-        var csrftoken = getCookie('csrftoken');
-        var data_str = "";                
-        var xhr = new XMLHttpRequest();
-        xhr.open( 
-            "GET", 
-            this.getAttribute("href"), 
-            true);
-
-        xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        xhr.onreadystatechange = function()
+             
+        link = this.getAttribute("href")
+        data = {'del_id' : this.getAttribute('id').match( /del_(\d+)/i )[1] }
+        ajax_post(link, data, function()
         {
             if (this.readyState != 4) return;
-            if (this.status != 200) 
+            else if (this.status != 200) 
             { 
                 alert( 'ERROR: ' + (this.status ? this.statusText : ' FUCK ') );
-                return;
             }
             else
             {   
-                console.log(document.querySelectorAll("a[href^=\\/twit\\/del]"))
-                data = xhr.responseText
-                var twit_json = JSON.parse(data);
-                if ("del_twit" in twit_json )
-                {  
-                    try
-                    {
-                        console.log(data)
+                try
+                {
+                    var twit_json = JSON.parse(this.responseText);
+                    if ("del_twit" in twit_json )
+                    {  
                         document.querySelector(twit_json.del_twit).remove()
                     }
-                    catch(e)
-                    {
-                        alert("Укулеле. Если вы е играли на етом инструменте вы многое потеряли. Тем не менее Something went wrong. Reload this page!")
-                        alert( e.name + " " + e.message );
-                    }
+                }
+                catch(e)
+                {
+                    alert("Укулеле. Если вы е играли на етом инструменте вы многое потеряли. Тем не менее Something went wrong. Reload this page!")
+                    location.reload() 
                 }
             }
 
-        }
-        xhr.send();
+        })
         return false;
     });
 
     on('click', 'a[href^=\\/twit\\/upd]', function(event) 
     {
-        event.stopImmediatePropagation();
         event.preventDefault();
-        event.stopPropagation();
-
         var id = this.getAttribute('id').match( /upd_(\d+)/i )[1];
         var last_twit;
         var csrftoken = getCookie('csrftoken');
-        var data_str = "";                
-        var xhr = new XMLHttpRequest();
-        xhr.open( 
-            "GET", 
-            "twit/get/"+id, 
-            true);
+        var data_str = "";
 
-        xhr.setRequestHeader("X-CSRFToken", csrftoken);
-        xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-        xhr.onreadystatechange = function()
+        if(upd_twit_id == null && upd_twit_text == null)
         {
-            if (this.readyState != 4) return;
-            if (this.status != 200) 
-            { 
-                alert( 'ERROR: ' + (this.status ? this.statusText : ' FUCK ') );
-                return;
-            }
-            else
+            link = "twit/get/"+id;
+            ajax_get(link, "", function()
             {
-                data = xhr.responseText
-                var twit_json = JSON.parse(data);
-                if ("twit" in twit_json )
-                {                    
-                    
-                    last_twit = twit_json.twit
-                    if(upd_twit_id == null && upd_twit_text == null)
+                if (this.readyState != 4) return;
+                if (this.status != 200) 
+                { 
+                    alert( 'ERROR: ' + (this.status ? this.statusText : ' FUCK ') );
+                    return;
+                }
+                else
+                {
+                    try
                     {
-                        try
-                        {
+                        var twit_json = JSON.parse(this.responseText);
+                        if ("twit" in twit_json )
+                        { 
+                            last_twit = twit_json.twit
                             edit_dict = upd_twitform(id, last_twit);
                             upd_twit_id = edit_dict['id'];
                             upd_twit_text = edit_dict['edit_twit'];
@@ -560,27 +487,32 @@ if (document.readyState == "complete") {
                             document.querySelector("#del_"+upd_twit_id).style.display = "none"
                             document.querySelector("#twi_text_"+upd_twit_id).style.display = "none"
                         }
-                        catch(e)
-                        {
-                            alert("Что-то пошло не так. Перезагрузите страничку!")
-                        }
                     }
-                    else
-                    {          
-                        edit_animate('#upd_twi_'+upd_twit_id, "#ff817f")
-                        edit_animate('#upd_twi_'+upd_twit_id, "#ffffff")
+                    catch(e)
+                    {
+                        alert("Укулеле. Если вы е играли на етом инструменте вы многое потеряли. Тем не менее Something went wrong. Reload this page!")
+                        location.reload() 
                     }
                 }
-            }
-
+            })
         }
-        xhr.send();
+        else
+        {
+            edit_animate('#upd_twi_'+upd_twit_id, "#ff817f")
+            var delayMillis = 1500; 
+            setTimeout(function() 
+            {
+                edit_animate('#upd_twi_'+upd_twit_id, "#ffffff")
+            }, delayMillis);
+            
+        }    
+        
         return false;
     });
 
     on('click', 'button[id=confirm_twit_edit]', function(event) {
         event.preventDefault();
-        event.stopPropagation();
+        //event.stopPropagation();
         if( upd_twit_text == document.getElementById( 'upd_twi_'+upd_twit_id ).value )
         {
             twit_form_back(upd_twit_id, document.getElementById( 'twi_text_'+upd_twit_id ).innerHTML )
@@ -588,27 +520,12 @@ if (document.readyState == "complete") {
         else
         {   
             new_twi = document.getElementById( 'upd_twi_'+upd_twit_id ).value
-            twi_data = {
-                "upd_id": upd_twit_id,
-                "text_twit": new_twi  
-            }       
-            var csrftoken = getCookie('csrftoken');
-            var data_str = "";
-            data_str += "upd_id"+"="+upd_twit_id;
-            data_str += "&";
-            data_str += "text_twit"+"="+encodeURIComponent(new_twi);
-
-            var xhr = new XMLHttpRequest();
-            xhr.open( 
-                "POST", 
-                'twit/upd/', 
-                true);
-
-            xhr.setRequestHeader("X-CSRFToken", csrftoken);
-            xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-            xhr.onreadystatechange = function()
+            data = {}
+            data["upd_id"] = upd_twit_id;
+            data["text_twit"] = encodeURIComponent(new_twi);
+            link = 'twit/upd/'
+            ajax_post(link, data, function()
             {
-
                 if (this.readyState != 4) return;
                 if (this.status != 200) 
                 {   
@@ -619,34 +536,29 @@ if (document.readyState == "complete") {
                     catch(e)
                     {
                         alert("Укулеле. Если вы е играли на етом инструменте вы многое потеряли. Тем не менее Something went wrong. Reload this page!")
+                        location.reload()
                     }
-                    
                 }
                 else
                 {   
                     try
                     {
-                        data = xhr.responseText;
-                        var mes_json = JSON.parse(data);
+                        var mes_json = JSON.parse(this.responseText);
                         twit_form_back(upd_twit_id, mes_json.twit);
                     }   
                     catch(e)
                     {
-
-                    }              
-                    
+                        alert("Укулеле. Если вы е играли на етом инструменте вы многое потеряли. Тем не менее Something went wrong. Reload this page!")
+                        location.reload()
+                    }
                 }
-
-            }
-            xhr.send(data_str);
-           
+            })
         }
         return false;
     });
 
     on('click', 'button[id=cansel_twit_edit]', function(event) {
         event.preventDefault();
-        event.stopPropagation();
         try
         {
             twit_form_back(upd_twit_id, document.getElementById( 'twi_text_'+upd_twit_id ).innerHTML )
@@ -654,6 +566,7 @@ if (document.readyState == "complete") {
         catch(e)
         {
             alert("Something went wrong. Reload this page!")
+            location.reload()
         }
         return false;
     });
@@ -855,35 +768,19 @@ if (document.readyState == "complete") {
 
     function add_twittolist(id, twit, date)
     {
-        var new_twit = '';
-        new_twit += '<div class="row">';
-        new_twit += '<div class="col-xs-6 col-sm-6 col-md-6 col-lg-6">';
-        new_twit += '<p type="date" class="blog-post-meta">'+date+'</p>';
-        new_twit += '</div>';
-        new_twit += '<div align="right" class="col-xs-6 col-sm-6 col-md-6 col-lg-6">';
-        new_twit += '<div>';
-        new_twit += '<a id="upd_'+id+'" name="upd_'+id+'" href="/twit/upd/'+id+'"><span class="glyphicon glyphicon-pencil"></span></a>';
-        new_twit += '<a id="del_'+id+'" name="del_'+id+'" href="/twit/del/'+id+'"><span class="glyphicon glyphicon-remove"></span></a>';
-        new_twit += '</div>';
-        new_twit += '</div>';
-        new_twit += '</div>';
-        new_twit += '<h3 id="twi_text_'+id+'">'+twit+'</h3>';
-
         var div_div = document.createElement('div');
         div_div.id = 'twit_'+id
         div_div.classList.add("blog-post")
+        new_twit =  document.querySelector('#template_twit').innerHTML
+        new_twit = new_twit.replace( /ID/g, id )
+        new_twit = new_twit.replace( /DATE_TEMP/g, date )
+        new_twit = new_twit.replace( /TWIT/g, twit )
         div_div.innerHTML = new_twit
         document.querySelector("#list_twit").appendChild(div_div);
     }
 
     function upd_twitform(id, last_twit)
     {
-        //var id = id_link.match( /upd_(\d+)/i )[1];
-        var new_form = ""
-        new_form += '<input type="text" id="upd_twi_'+id+'" class="form-control form_post" value="'+last_twit+'">';
-        new_form += '<button type="button" id="confirm_twit_edit" class="btn btn-default btn-sm form_margin_inl">Confirm changes</button>';
-        new_form += '<button type="button" id="cansel_twit_edit" class="btn btn-default btn-sm form_margin_inl">Cancel</button>';
-
         var input_el = document.createElement('input');
         input_el.id = 'upd_twi_'+id
         input_el.type = 'text'
@@ -926,11 +823,7 @@ if (document.readyState == "complete") {
 
     function edit_animate(parent_id, color)
     {
-        document.querySelector(parent_id).animate(
-        {
-            backgroundColor: color
-
-        }, 700 );
+        document.querySelector(parent_id).style.backgroundColor = color
     }
 
     function getCookie(name) 
@@ -939,7 +832,7 @@ if (document.readyState == "complete") {
         if (document.cookie && document.cookie !== '') {
             var cookies = document.cookie.split(';');
             for (var i = 0; i < cookies.length; i++) {
-                var cookie = jQuery.trim(cookies[i]);
+                var cookie = cookies[i].trim();
                 // Does this cookie string begin with the name we want?
                 if (cookie.substring(0, name.length + 1) === (name + '=')) {
                     cookieValue = decodeURIComponent(cookie.substring(name.length + 1));

@@ -20,5 +20,6 @@ urlpatterns = [
 
     url(r'^twit/', include('hello.urls')),    
     url(r'^regform/', views.regformlive),
+    url(r'^test', views.test),
     
 ]

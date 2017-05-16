@@ -15,11 +15,11 @@
 
     <!-- Custom styles for this template -->
    
-
-    <link href="static/css/bootstrap.css" rel="stylesheet">
-    <link href="static/css/style.css" rel="stylesheet">    
-    <script src="static/js/bootstrap.js"></script>    
-    <link rel="shortcut icon" href="static/favicon.ico">    
+    {% load staticfiles %}
+    <link href="{% static "css/bootstrap.css" %}" rel="stylesheet">
+    <link href="{% static "css/blog.css" %}" rel="stylesheet">
+    <link href="{% static "css/style.css" %}" rel="stylesheet">
+    <link rel="shortcut icon" href="{% static "favicon.ico" %}">    
 
 </head>
 <style type="text/css">
@@ -59,7 +59,7 @@
         <div class="in">            
             <div class="row form">
                 <div class="col-xs-1 col-sm-2 col-md-3 col-lg-4"></div>
-                <div class="col-xs-10 col-sm-8 col-md-6 col-lg-4">                    
+                <div id="div_div" class="col-xs-10 col-sm-8 col-md-6 col-lg-4">                    
                     <h3> Анимацию таких атрибутов как «height»,  «width» и «opacity» видно невооружённым взглядом, в действительности же это далеко не всё, заглянув  внутрь jQueryможноувидеть,что  так  же  изменяются внутренние и внешние отступы –«padding»и «margin»–так что не стоит об этом забывать. </h3>
 
                     <button id="button_1" type="button" class="btn btn-default btn-lg">
@@ -70,8 +70,12 @@
                         To Small
                     </button>
 
+                    <button id="button_3" type="button" class="btn btn-default btn-lg">
+                        MAIN BUTTON
+                    </button>
+
                     <div id="yato_pic">
-                        <img src="static/yato.jpg" alt="yato yato">
+                        <img src="/static/yato.jpg" alt="yato yato">
                     </div>
 
                     <h3><a id="link" href="http://httpbin.org/get">Link ( AHAHA )</a></h3>
@@ -133,6 +137,15 @@
         )
 
     })
+
+    $("#button_3").click(function(event){
+        // значения указанных свойств будут плавно изменяться
+        //от текущих до заданных
+        var html = document.querySelector("#div_div").innerHTML
+        document.querySelector("#div_div").appendChild(input_el);
+
+    })
+
     
     $("#link").click(
         function(event){
@@ -159,7 +172,6 @@
             },
             error: function()
             {
-
                 alert("ERROR")
             }
         });

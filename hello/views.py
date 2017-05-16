@@ -18,8 +18,8 @@ from django.template.loader import render_to_string, get_template
 from django.core.urlresolvers import reverse
 
 
-def main(request):
-    return return_lalka(message='Blog Page')
+def test(request):
+    return render(request, 'test_jquerry.html', {})
 
 
 def static(request):
@@ -63,14 +63,15 @@ def update_twit(request):
 
 
 def delete_twit(request):
-    twit_id = re.search("/twit/del/(\d+)", request.path).group(1)
+    #twit_id = re.search("/twit/del/", request.path).group(1)
     if request.user.is_authenticated():
-        this_twit = twitter_db.delete_data_from_sql(
-            user=request.user,
-            row_id=twit_id
-        )
-        return return_lalka(message=json.dumps({"del_twit": "#twit_" + twit_id}))
-
+        if request.method == "POST":
+            twit_id = request.POST['del_id']
+            this_twit = twitter_db.delete_data_from_sql(
+                user=request.user,
+                row_id=twit_id
+            )
+            return return_lalka(message=json.dumps({"del_twit": "#twit_" + twit_id}))
     return authentefication(request)
 
 
