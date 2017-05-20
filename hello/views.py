@@ -21,7 +21,6 @@ from django.core.urlresolvers import reverse
 def test(request):
     return render(request, 'test_jquerry.html', {})
 
-
 def static(request):
     base = os.path.basename(request.path)
     file_path = request.path.replace("static", "assets")
